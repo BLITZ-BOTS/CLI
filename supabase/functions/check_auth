@@ -1,0 +1,10 @@
+const supabase = require("../client.js");
+
+async function Check_Auth() {
+  const { error, data } = await supabase.auth.getUser();
+  if (error || !data.user) return false;
+
+  return true;
+}
+
+

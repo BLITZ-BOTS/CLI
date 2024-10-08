@@ -1,0 +1,12 @@
+{
+  "name": "MyPlugin",
+  "description": "A brief description of what the plugin does.",
+  "version": "1.0.0",
+  "author": "Your Name",
+  "repo": "https://github.com/yourusername/MyPlugin",
+  "folders": {
+    "events": "events/",
+    "commands": "commands/",
+    "slash_commands": "slash_commands/"
+  }
+}
