@@ -1,0 +1,49 @@
+name: Build and Release
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read 
+      id-token: write
+      actions: write
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Set up Deno
+      uses: denoland/setup-deno@v3
+      with:
+        deno-version: 'v2.x'
+
+    - name: Install dependencies
+      run: |
+        deno cache --unstable --import-map=import_map.json # Adjust if you use an import map
+        deno install --unstable -A jsr:@blitz-bots/builder
+
+    - name: Run project build or tests (optional)
+      run: |
+        deno run --unstable --allow-write --allow-run cli.ts init
+        # Compile the project into a binary called 'blitz'
+        deno compile --unstable --allow-read --allow-write --allow-run cli.ts -o blitz
+
+    - name: Create Release
+      id: create_release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: blitz 
+        tag_name: v${{ github.run_number }} 
+
+    - name: Upload release assets
+      uses: actions/upload-artifact@v3
+      with:
+        name: blitz-binary
+        path: ./blitz 
