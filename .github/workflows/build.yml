@@ -26,14 +26,14 @@ jobs:
 
     - name: Install dependencies
       run: |
-        deno cache --unstable --import-map=import_map.json # Adjust if you use an import map
-        deno install --unstable -A jsr:@blitz-bots/builder
+        deno cache --unstable main.ts
+        deno add --unstable -A jsr:@blitz-bots/builder
 
-    - name: Run project build or tests (optional)
+    - name: Run project build or tests
       run: |
-        deno run --unstable --allow-write --allow-run cli.ts init
+        deno run --unstable --allow-write --allow-run main.ts init
         # Compile the project into a binary called 'blitz'
-        deno compile --unstable --allow-read --allow-write --allow-run cli.ts -o blitz
+        deno compile --unstable --allow-read --allow-write --allow-run main.ts -o blitz
 
     - name: Create Release
       id: create_release
