@@ -27,7 +27,7 @@ jobs:
     - name: Install dependencies
       run: |
         deno cache --unstable main.ts
-        deno add --unstable -A jsr:@blitz-bots/builder
+        deno add --unstable jsr:@blitz-bots/builder
 
     - name: Run project build or tests
       run: |
