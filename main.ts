@@ -1,6 +1,6 @@
-import { ensureDir } from "https://deno.land/std@0.118.0/fs/mod.ts";
-import { join } from "https://deno.land/std@0.118.0/path/mod.ts";
-import * as colors from "https://deno.land/std@0.118.0/fmt/colors.ts";
+import { ensureDir } from "jsr:@std/fs@1.0.5";
+import { join } from "jsr:@std/path@1.0.8";
+import * as colors from "jsr:@std/fmt@1.0.3/colors";
 
 // Pinkish-red color for questions
 const promptColor = (text: string) => colors.bold(colors.rgb8(text, 207)); // Apply color and bold separately
