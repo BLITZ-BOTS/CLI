@@ -2,8 +2,7 @@ import { createClient } from "jsr:@supabase/supabase-js@2";
 import { join } from "https://deno.land/std@0.170.0/path/mod.ts";
 import { writeJson } from "https://deno.land/x/jsonfile@1.0.0/mod.ts";
 import * as YAML from "npm:yaml";
-import { walk } from "https://deno.land/std@0.170.0/fs/mod.ts"; // Deno walk for traversing directories
-import { BlobWriter, ZipWriter } from "https://deno.land/x/zipjs/index.js"; // Zip-js
+import { compress } from "@fakoua/zip-ts";
 
 // Define ANSI color codes
 const RESET = "\x1b[0m";
@@ -24,10 +23,9 @@ type Config = {
   name: string;
   description: string;
   version: string;
-  author: string;
   url: string;
   tags: string[];
-  config?: Record<string, any>; 
+  config?: Record<string, unknown>; 
 };
 
 type TokenData = {
@@ -42,9 +40,7 @@ const getAppDataPath = (): string => {
     : join(Deno.env.get("HOME") || "", ".blitz");
 };
 
-const getConfigFilePath = (): string => {
-  return join(Deno.cwd(), "blitz.config.yaml");
-};
+
 
 const isValidVersion = (version: string): boolean => {
   const semVerRegex = /^(\d+\.\d+\.\d+)$/;
@@ -55,56 +51,119 @@ const isValidVersion = (version: string): boolean => {
 
 
 export async function PublishCommand() {
-
     let accessToken;
-    const configFilePath = `${Deno.cwd()}/blitz.config.yaml`
+    const configFilePath = `${Deno.cwd()}/blitz.config.yaml`;
+    const compressedFilePath = `${Deno.cwd()}/plugin.zip`;
     let config: Config;
-
-
+  
     try {
       const configContent = await Deno.readTextFile(configFilePath);
-      config = YAML.parse(configContent); // Parse the content
+      config = YAML.parse(configContent);
     } catch (_err) {
       throw new Error("Error Publishing: Cannot Find blitz.config.yaml");
     }
-
-    if (!config.name) return console.log(`${BOLD}${RED}Missing "name" value from blitz.config.yaml${RESET}\n\n`);
-    if (!config.version) return console.log(`${BOLD}${RED}Missing "version" value from blitz.config.yaml${RESET}\n\n`);
-    if (!isValidVersion(config.version)) return console.log(`${BOLD}${RED}Version value from blitz.config.yaml is malformed${RESET}\n\n`);
-
-
+  
+    if (!config.name) {
+      console.log(`${BOLD}${RED}Missing "name" value from blitz.config.yaml${RESET}\n\n`);
+      return;
+    }
+    if (!config.version) {
+      console.log(`${BOLD}${RED}Missing "version" value from blitz.config.yaml${RESET}\n\n`);
+      return;
+    }
+    if (!isValidVersion(config.version)) {
+      console.log(`${BOLD}${RED}Version value from blitz.config.yaml is malformed${RESET}\n\n`);
+      return;
+    }
+  
     const blitzFilePath = getAppDataPath();
     let tokenData: TokenData;
     try {
       const tokenContent = await Deno.readTextFile(blitzFilePath);
-      tokenData = JSON.parse(tokenContent); 
+      tokenData = JSON.parse(tokenContent);
+      accessToken = tokenData.access_token;
     } catch (_err) {
-      throw new Error("Error Publishing: .blitz file is either missing or corrupted. Please re-authenticate.");
+      console.log(`${BOLD}${RED}.blitz file is either missing or corrupted. Please re-authenticate.\n\n`);
+      Deno.exit();
     }
-
+  
     // Check if token is expired and refresh if necessary
     const currentTime = Math.floor(Date.now() / 1000);
-
+  
     if (currentTime > Number(tokenData.expires_at)) {
       console.log(YELLOW + "Access token expired. Refreshing token..." + RESET);
-      const { data, error } = await supabase.auth.refreshSession({ refresh_token: tokenData?.refresh_token})
+      const { data, error } = await supabase.auth.refreshSession({ refresh_token: tokenData?.refresh_token });
       if (error) {
         throw new Error("Error Publishing: Failed to refresh the access token. Please check your authentication details.");
       }
-      // Update token data and save it
       tokenData = {
         access_token: data.session?.access_token || "",
         expires_at: String(data.session?.expires_at),
-        refresh_token: data.session?.refresh_token || "" 
+        refresh_token: data.session?.refresh_token || ""
       };
-
-
+  
       await writeJson(blitzFilePath, tokenData, { spaces: 2 });
       accessToken = data.session?.access_token;
       console.log(GREEN + "Token refreshed successfully!" + RESET);
     }
-
-
-
-
-}
+  
+    console.log(`${GRAY}Compressing plugin files...${RESET}`);
+    try {
+      const compressed = await compress([Deno.cwd()], compressedFilePath, { overwrite: true });
+  
+      if (!compressed) {
+        console.log(`${BOLD}${RED}Error Compressing Plugin${RESET}\n\n`);
+        return;
+      }
+  
+      await Deno.stat(compressedFilePath);
+      console.log(`${GRAY}Compression complete. Preparing to upload...${RESET}`);
+  
+      const fileContent = await Deno.readFile(compressedFilePath);
+      const file = new File([fileContent], "plugin.zip", { type: "application/zip" });
+  
+      const formData = new FormData();
+      formData.append("name", config.name);
+      formData.append("version", config.version);
+      formData.append("file", file);
+      if (config.description) formData.append("description", config.description);
+      if (config.url) formData.append("url", config.url);
+      if (config.tags) formData.append("tags", config.tags.join(","));
+  
+      const response = await fetch("https://api.blitz-bots.com/plugins", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: formData,
+      });
+  
+      if (response.ok) {
+        console.log(`${GREEN}Successfully Published ${RESET}${BOLD}${config.name}@${config.version}${RESET}\n\n`);
+      } else {
+        try {
+          const errorData = await response.json();
+          console.log(`${RED}Error Uploading Plugin:${RESET}`, errorData.message || errorData, "\n\n");
+        } catch (_err) {
+          const errorText = await response.text();
+          console.log(`${RED}Error Uploading Plugin:${RESET}`, errorText, "\n\n");
+        }
+      }
+    } catch (err) {
+        if (err instanceof Error) {
+      console.error(`${RED}Error:${RESET}`, err.message, "\n\n");
+        }
+    } finally {
+      try {
+        await Deno.remove(compressedFilePath);
+        console.log(`${GRAY}Cleaned up: Deleted plugin.zip${RESET}`);
+      } catch (cleanupErr) {
+        if (cleanupErr instanceof Error) {
+        console.error(`${YELLOW}Warning: Could not delete plugin.zip:${RESET}`, cleanupErr.message);
+        }
+      }
+    }
+  }
+  
+  
+  
