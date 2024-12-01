@@ -3,68 +3,68 @@ import { join } from "https://deno.land/std@0.170.0/path/mod.ts";
 import { writeJson } from "https://deno.land/x/jsonfile@1.0.0/mod.ts";
 
 type TokenData = {
-    access_token: string;
-    expires_at: string;
-    expires_in: string;
-    provider_refresh_token: string;
-    provider_token: string;
-    refresh_token: string;
-    token_type: string;
+  access_token: string;
+  expires_at: string;
+  expires_in: string;
+  provider_refresh_token: string;
+  provider_token: string;
+  refresh_token: string;
+  token_type: string;
 };
 
 const supabase = createClient(
-    "https://fewdjowxiqfzsfixqbzl.supabase.co",
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZld2Rqb3d4aXFmenNmaXhxYnpsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzExMDM5MDIsImV4cCI6MjA0NjY3OTkwMn0.SvzrrIcLU8lCrv-xcNFoHoOdqLh8n7wvE5TZ5QFl32s",
+  "https://fewdjowxiqfzsfixqbzl.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZld2Rqb3d4aXFmenNmaXhxYnpsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzExMDM5MDIsImV4cCI6MjA0NjY3OTkwMn0.SvzrrIcLU8lCrv-xcNFoHoOdqLh8n7wvE5TZ5QFl32s",
 );
 
 const getAppDataPath = (): string => {
-    return Deno.build.os === "windows"
-        ? join(Deno.env.get("APPDATA") || "", ".blitz")
-        : join(Deno.env.get("HOME") || "", ".blitz");
+  return Deno.build.os === "windows"
+    ? join(Deno.env.get("APPDATA") || "", ".blitz")
+    : join(Deno.env.get("HOME") || "", ".blitz");
 };
 
 export async function AuthCommand() {
-    try {
-        const { data: { url }, error } = await supabase.auth.signInWithOAuth({
-            provider: "discord",
-            options: { redirectTo: "http://localhost:6127/auth/callback" },
-        });
+  try {
+    const { data: { url }, error } = await supabase.auth.signInWithOAuth({
+      provider: "discord",
+      options: { redirectTo: "http://localhost:6127/auth/callback" },
+    });
 
-        if (error) throw error;
+    if (error) throw error;
 
-        console.log(
-            "\x1b[36m%s\x1b[0m",
-            `Please Open This URL To Login:\n${url}\n\n`,
-        );
+    console.log(
+      "\x1b[36m%s\x1b[0m",
+      `Please Open This URL To Login:\n${url}\n\n`,
+    );
 
-        const tokens = await CreateTempAuthServer();
+    const tokens = await CreateTempAuthServer();
 
-        const user = await supabase.auth.getUser(tokens.access_token);
-        const fullName = user?.data?.user?.user_metadata?.full_name ??
-            "Unknown User";
+    const user = await supabase.auth.getUser(tokens.access_token);
+    const fullName = user?.data?.user?.user_metadata?.full_name ??
+      "Unknown User";
 
-        console.log(`Logged In As \x1b[1m${fullName}\x1b[0m`);
-        Deno.exit();
-    } catch (error) {
-        console.log(error);
-    }
+    console.log(`Logged In As \x1b[1m${fullName}\x1b[0m`);
+    Deno.exit();
+  } catch (error) {
+    console.log(error);
+  }
 }
 
 function CreateTempAuthServer(): Promise<TokenData> {
-    return new Promise((resolve, reject) => {
-        const handler = async (req: Request) => {
-            const url = new URL(req.url, "http://localhost:6127");
-            const headers = new Headers();
-            headers.set("Access-Control-Allow-Origin", "*");
-            headers.set("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-            headers.set("Access-Control-Allow-Headers", "Content-Type");
+  return new Promise((resolve, reject) => {
+    const handler = async (req: Request) => {
+      const url = new URL(req.url, "http://localhost:6127");
+      const headers = new Headers();
+      headers.set("Access-Control-Allow-Origin", "*");
+      headers.set("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+      headers.set("Access-Control-Allow-Headers", "Content-Type");
 
-            if (req.method === "OPTIONS") {
-                return new Response(null, { headers });
-            }
+      if (req.method === "OPTIONS") {
+        return new Response(null, { headers });
+      }
 
-            if (url.pathname === "/auth/callback") {
-                const html = new TextEncoder().encode(`<!DOCTYPE html>
+      if (url.pathname === "/auth/callback") {
+        const html = new TextEncoder().encode(`<!DOCTYPE html>
           <html>
             <script src="https://cdn.tailwindcss.com"></script>
             <head>
@@ -113,68 +113,68 @@ function CreateTempAuthServer(): Promise<TokenData> {
             </body>
           </html>
         `);
-                return new Response(html, { headers });
+        return new Response(html, { headers });
+      }
+
+      if (url.pathname === "/token" && req.method === "POST") {
+        try {
+          const body = await req.text();
+          const tokens = JSON.parse(body);
+
+          const filePath = getAppDataPath();
+
+          // Check if the file exists using Deno.stat()
+          let fileExists = false;
+          try {
+            await Deno.stat(filePath); // Check if the file exists
+            fileExists = true;
+          } catch (err) {
+            if (err instanceof Deno.errors.NotFound) {
+              fileExists = false;
+            } else {
+              throw err;
             }
+          }
 
-            if (url.pathname === "/token" && req.method === "POST") {
-                try {
-                    const body = await req.text();
-                    const tokens = JSON.parse(body);
+          if (!fileExists) {
+            await writeJson(filePath, {}, { spaces: 2 }); // Create the file if it doesn't exist
+          }
 
-                    const filePath = getAppDataPath();
+          await writeJson(filePath, tokens, { spaces: 2 });
 
-                    // Check if the file exists using Deno.stat()
-                    let fileExists = false;
-                    try {
-                        await Deno.stat(filePath); // Check if the file exists
-                        fileExists = true;
-                    } catch (err) {
-                        if (err instanceof Deno.errors.NotFound) {
-                            fileExists = false;
-                        } else {
-                            throw err;
-                        }
-                    }
+          const response = new Response(
+            JSON.stringify({
+              message: "Tokens received successfully",
+              tokens,
+            }),
+            {
+              status: 200,
+              headers: { "Content-Type": "application/json" },
+            },
+          );
 
-                    if (!fileExists) {
-                        await writeJson(filePath, {}, { spaces: 2 }); // Create the file if it doesn't exist
-                    }
+          resolve(tokens);
+          server.shutdown(); // Shutdown server after token reception
 
-                    await writeJson(filePath, tokens, { spaces: 2 });
+          return response;
+        } catch (error) {
+          console.error("Error processing tokens:", error);
+          reject(error);
+          return new Response(
+            JSON.stringify({
+              message: `Error processing tokens`,
+            }),
+            {
+              status: 400,
+              headers: { "Content-Type": "application/json" },
+            },
+          );
+        }
+      }
 
-                    const response = new Response(
-                        JSON.stringify({
-                            message: "Tokens received successfully",
-                            tokens,
-                        }),
-                        {
-                            status: 200,
-                            headers: { "Content-Type": "application/json" },
-                        },
-                    );
+      return new Response("BLITZ TEMP AUTH SERVER", { headers });
+    };
 
-                    resolve(tokens);
-                    server.shutdown(); // Shutdown server after token reception
-
-                    return response;
-                } catch (error) {
-                    console.error("Error processing tokens:", error);
-                    reject(error);
-                    return new Response(
-                        JSON.stringify({
-                            message: `Error processing tokens`,
-                        }),
-                        {
-                            status: 400,
-                            headers: { "Content-Type": "application/json" },
-                        },
-                    );
-                }
-            }
-
-            return new Response("BLITZ TEMP AUTH SERVER", { headers });
-        };
-
-        const server = Deno.serve({ port: 6127, onListen: () => {} }, handler);
-    });
+    const server = Deno.serve({ port: 6127, onListen: () => {} }, handler);
+  });
 }

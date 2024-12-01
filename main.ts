@@ -2,6 +2,7 @@ import { Command } from "https://deno.land/x/cliffy@v0.25.6/command/mod.ts";
 import { AuthCommand } from "./commands/auth.ts";
 import { BotCommand } from "./commands/bot.ts";
 import { PluginCommand } from "./commands/plugin.ts";
+import { PublishCommand } from "./commands/publish.ts";
 
 const program = new Command();
 
@@ -30,10 +31,13 @@ program
   .action(() => {
     console.clear();
     PluginCommand();
+  })
+  program
+  .command("publish")
+  .description("Publish A New Blitz Plugin")
+  .action(() => {
+    console.clear();
+    PublishCommand();
   });
-
-
-
-
 
 program.parse(Deno.args);
