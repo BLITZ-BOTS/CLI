@@ -1,0 +1,67 @@
+name: Deno
+
+on:
+  workflow_dispatch:
+    inputs:
+      os:
+        description: 'Select OS for Compilation'
+        required: true
+        default: 'all'
+        options:
+          - all
+          - linux
+          - macos
+          - windows
+
+permissions:
+  contents: write  # Permission to create releases and upload assets
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Setup repo
+        uses: actions/checkout@v4
+
+      - name: Setup Deno
+        uses: denoland/setup-deno@61fe2df320078202e33d7d5ad347e7dcfa0e8f31  # v1.1.2
+        with:
+          deno-version: v1.x
+
+      - name: Verify formatting
+        run: deno fmt
+
+      - name: Run linter
+        run: deno lint
+
+      - name: Compile for Linux
+        if: ${{ github.event.inputs.os == 'all' || github.event.inputs.os == 'linux' }}
+        run: deno compile -A --target x86_64-unknown-linux-gnu --output main-linux main.ts
+
+      - name: Compile for macOS
+        if: ${{ github.event.inputs.os == 'all' || github.event.inputs.os == 'macos' }}
+        run: deno compile -A --target x86_64-apple-darwin --output main-macos main.ts
+
+      - name: Compile for Windows
+        if: ${{ github.event.inputs.os == 'all' || github.event.inputs.os == 'windows' }}
+        run: deno compile -A --target x86_64-pc-windows-msvc --output main-win.exe main.ts
+
+  release:
+    runs-on: ubuntu-latest
+    needs: test
+    if: github.ref == 'refs/heads/main'  # Only run on main branch push
+
+    steps:
+      - name: Setup repo
+        uses: actions/checkout@v4
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            main-linux
+            main-macos
+            main-win.exe
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
