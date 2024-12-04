@@ -1,30 +1,17 @@
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import { join } from "https://deno.land/std@0.170.0/path/mod.ts";
 import { writeJson } from "https://deno.land/x/jsonfile@1.0.0/mod.ts";
-import * as YAML from "npm:yaml";
-import { compress } from "@fakoua/zip-ts";
 
 // Define ANSI color codes
 const RESET = "\x1b[0m";
 const BOLD = "\x1b[1m";
 const RED = "\x1b[31m";
 const GREEN = "\x1b[32m";
-const YELLOW = "\x1b[33m";
-const GRAY = "\x1b[2m";
 
 const supabase = createClient(
   "https://fewdjowxiqfzsfixqbzl.supabase.co",
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZld2Rqb3d4aXFmenNmaXhxYnpsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzExMDM5MDIsImV4cCI6MjA0NjY3OTkwMn0.SvzrrIcLU8lCrv-xcNFoHoOdqLh8n7wvE5TZ5QFl32s",
 );
-
-type Config = {
-  name: string;
-  description: string;
-  version: string;
-  url: string;
-  tags: string[];
-  config?: Record<string, unknown>;
-};
 
 type TokenData = {
   access_token: string;
@@ -38,14 +25,8 @@ const getAppDataPath = (): string => {
     : join(Deno.env.get("HOME") || "", ".blitz");
 };
 
-const isValidVersion = (version: string): boolean => {
-  const semVerRegex = /^(\d+\.\d+\.\d+)$/;
-  return semVerRegex.test(version);
-};
-
 export async function DeleteCommand(plugin: string) {
   let accessToken;
-  let config: Config;
 
   const blitzFilePath = getAppDataPath();
   let tokenData: TokenData;

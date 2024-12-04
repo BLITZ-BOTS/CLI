@@ -152,17 +152,53 @@ export async function PublishCommand() {
       console.log(
         `${GREEN}Successfully Published ${RESET}${BOLD}${config.name}@${config.version}${RESET}\n\n`,
       );
+    } else if (response.status === 409) {
+      // Handle conflict by updating the existing plugin
+      const response2 = await fetch(
+        `https://api.blitz-bots.com/plugins/${config.name}`,
+        {
+          method: "PATCH",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+          body: formData,
+        },
+      );
+
+      if (response2.ok) {
+        console.log(
+          `${GREEN}Successfully Updated ${RESET}${BOLD}${config.name}@${config.version}${RESET}\n\n`,
+        );
+      } else {
+        try {
+          const patchErrorData = await response2.json().catch(() => ({}));
+          console.error(
+            `${RED}Error Updating Plugin:${RESET}`,
+            patchErrorData.message || patchErrorData,
+            "\n\n",
+          );
+        } catch (err) {
+          console.error(
+            `${RED}Error Updating Plugin:${RESET}`,
+            err instanceof Error ? err.message : err,
+            "\n\n",
+          );
+        }
+      }
     } else {
       try {
-        const errorData = await response.json();
-        console.log(
+        const errorData = await response.json().catch(() => ({}));
+        console.error(
           `${RED}Error Uploading Plugin:${RESET}`,
           errorData.message || errorData,
           "\n\n",
         );
-      } catch (_err) {
-        const errorText = await response.text();
-        console.log(`${RED}Error Uploading Plugin:${RESET}`, errorText, "\n\n");
+      } catch (err) {
+        console.error(
+          `${RED}Error Uploading Plugin:${RESET}`,
+          err instanceof Error ? err.message : err,
+          "\n\n",
+        );
       }
     }
   } catch (err) {
