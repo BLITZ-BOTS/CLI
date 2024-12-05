@@ -22,7 +22,7 @@ type Config = {
   description: string;
   version: string;
   url: string;
-  tags: string[];
+  tags: [string];
   config?: Record<string, unknown>;
 };
 
@@ -138,7 +138,9 @@ export async function PublishCommand() {
     formData.append("file", file);
     if (config.description) formData.append("description", config.description);
     if (config.url) formData.append("url", config.url);
-    if (config.tags) formData.append("tags", config.tags.join(","));
+    if (config.tags && Array.isArray(config.tags)) {
+      config.tags.forEach((tag) => formData.append("tags[]", tag));
+    }
 
     const response = await fetch("https://api.blitz-bots.com/plugins", {
       method: "POST",
