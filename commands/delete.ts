@@ -1,6 +1,6 @@
 import { createClient } from "jsr:@supabase/supabase-js@2";
-import { join } from "https://deno.land/std@0.170.0/path/mod.ts";
-import { writeJson } from "https://deno.land/x/jsonfile@1.0.0/mod.ts";
+import { join } from "jsr:@std/path@1.0.8";
+import { writeFile } from "jsr:@opensrc/jsonfile@1.0.0";
 
 // Define ANSI color codes
 const RESET = "\x1b[0m";
@@ -60,7 +60,7 @@ export async function DeleteCommand(plugin: string) {
       refresh_token: data.session?.refresh_token || "",
     };
 
-    await writeJson(blitzFilePath, tokenData, { spaces: 2 });
+    await writeFile(blitzFilePath, tokenData, { spaces: 2 });
     accessToken = data.session?.access_token;
   }
 

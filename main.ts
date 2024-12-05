@@ -1,4 +1,4 @@
-import { Command } from "https://deno.land/x/cliffy@v0.25.6/command/mod.ts";
+import { Command } from "jsr:@cliffy/command@1.0.0-rc.7";
 import { AuthCommand } from "./commands/auth.ts";
 import { BotCommand } from "./commands/bot.ts";
 import { PluginCommand } from "./commands/plugin.ts";

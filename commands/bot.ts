@@ -1,4 +1,4 @@
-import { ensureDir } from "https://deno.land/std@0.224.0/fs/mod.ts";
+import { ensureDir } from "jsr:@std/fs@1.0.6";
 
 const RESET = "\x1b[0m";
 const BOLD = "\x1b[1m";

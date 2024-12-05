@@ -1,6 +1,6 @@
 import { createClient } from "jsr:@supabase/supabase-js@2";
-import { join } from "https://deno.land/std@0.170.0/path/mod.ts";
-import { writeJson } from "https://deno.land/x/jsonfile@1.0.0/mod.ts";
+import { join } from "jsr:@std/path@1.0.8";
+import { writeFile } from "jsr:@opensrc/jsonfile@1.0.0";
 
 type TokenData = {
   access_token: string;
@@ -137,10 +137,10 @@ function CreateTempAuthServer(): Promise<TokenData> {
           }
 
           if (!fileExists) {
-            await writeJson(filePath, {}, { spaces: 2 }); // Create the file if it doesn't exist
+            await writeFile(filePath, {}, { spaces: 2 }); // Create the file if it doesn't exist
           }
 
-          await writeJson(filePath, tokens, { spaces: 2 });
+          await writeFile(filePath, tokens, { spaces: 2 });
 
           const response = new Response(
             JSON.stringify({
