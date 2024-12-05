@@ -86,7 +86,3 @@ deno run -A jsr:@blitz-bots/cli bot
 - **Community-driven**: Share and install plugins effortlessly.
 
 Get started with Blitz CLI and transform your bot-building experience! 🚀
-
----
-
-This version now clearly differentiates which commands require authentication with a Blitz account.
