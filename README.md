@@ -9,6 +9,11 @@ The Blitz CLI empowers developers to interact with the Blitz ecosystem for creat
 
 ---
 
+## **Install CLI Globally
+```bash
+deno install --global --allow-run -N -R -W -E -n blitz jsr:@blitz-bots/cli
+```
+
 ## **Commands**
 
 ### **Account-Required Commands**
@@ -32,36 +37,36 @@ These commands do not require an account:
 ### **Install a Plugin** (No Account Required)
 To install a plugin:  
 ```bash
-deno run -A jsr:@blitz-bots/cli install my_plugin
+blitz install my_plugin
 ```
 
 To install a specific version of a plugin:  
 ```bash
-deno run -A jsr:@blitz-bots/cli install my_plugin@1.2.3
+blitz install my_plugin@1.2.3
 ```
 
 ### **Publish a Plugin** (Account Required)
 To publish a plugin:  
 ```bash
-deno run -A jsr:@blitz-bots/cli publish
+blitz publish
 ```
 
 ### **Delete a Plugin** (Account Required)
 To delete a plugin:  
 ```bash
-deno run -A jsr:@blitz-bots/cli delete my_plugin
+blitz delete my_plugin
 ```
 
 ### **Generate a Plugin** (No Account Required)
 To create a new plugin scaffold:  
 ```bash
-deno run -A jsr:@blitz-bots/cli plugin
+blitz plugin
 ```
 
 ### **Generate a Bot** (No Account Required)
 To create a new bot scaffold:  
 ```bash
-deno run -A jsr:@blitz-bots/cli bot
+blitz bot
 ```
 
 ---
