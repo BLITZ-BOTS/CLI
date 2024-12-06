@@ -9,7 +9,7 @@ The Blitz CLI empowers developers to interact with the Blitz ecosystem for creat
 
 ---
 
-## **Install CLI Globally
+## **Install CLI Globally**
 ```bash
 deno install --global --allow-run -N -R -W -E -n blitz jsr:@blitz-bots/cli
 ```
