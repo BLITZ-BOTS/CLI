@@ -1,7 +1,7 @@
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import { join } from "jsr:@std/path@1.0.8";
 import { writeFile } from "jsr:@opensrc/jsonfile@1.0.0";
-import open from 'jsr:@rdsq/open@1.0.1';
+import { systemopen } from "jsr:@lambdalisue/systemopen@1.0.0";
 
 type TokenData = {
   access_token: string;
@@ -38,7 +38,7 @@ export async function AuthCommand() {
       `Opening In Default Browser:\n${url}\n\n`,
     );
 
-    await open(`${url}`);
+    await systemopen(`${url}`);
 
     const tokens = await CreateTempAuthServer();
 

@@ -13,7 +13,8 @@ export async function BotCommand() {
       JSON.stringify(
         {
           tasks: {
-            start: "deno run --allow-net --allow-read --allow-env --env=.env bot.ts",
+            start:
+              "deno run --allow-net --allow-read --allow-env --env=.env bot.ts",
           },
         },
         null,
