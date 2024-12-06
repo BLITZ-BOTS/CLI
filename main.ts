@@ -5,12 +5,12 @@ import { PluginCommand } from "./commands/plugin.ts";
 import { PublishCommand } from "./commands/publish.ts";
 import { InstallCommand } from "./commands/install.ts";
 import { DeleteCommand } from "./commands/delete.ts";
-
+import deno_config from "./deno.json" with { type: "json" };
 const program = new Command();
 
 program
   .name("blitz")
-  .version("1.0.0")
+  .version(deno_config.version)
   .description("A CLI tool for managing Blitz projects and plugins")
   .command("auth")
   .description("Authenticate using Discord OAuth")
