@@ -5,7 +5,7 @@ const BOLD = "\x1b[1m";
 const RED = "\x1b[31m";
 const GRAY = "\x1b[2m";
 
-export async function BotCommand(token: string) {
+export async function BotCommand(token?: string) {
   try {
     await Deno.writeTextFile(
       "deno.json",
