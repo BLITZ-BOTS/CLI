@@ -1,8 +1,7 @@
-import { createClient } from "jsr:@supabase/supabase-js@2";
+import { createClient } from "jsr:@supabase/supabase-js@2.47.2";
 import { join } from "jsr:@std/path@1.0.8";
 import { writeFile } from "jsr:@opensrc/jsonfile@1.0.0";
 
-// Define ANSI color codes
 const RESET = "\x1b[0m";
 const BOLD = "\x1b[1m";
 const RED = "\x1b[31m";

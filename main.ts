@@ -22,9 +22,10 @@ program
 program
   .command("bot")
   .description("Create A New Blitz Bot")
-  .action(() => {
+  .option("-t, --token <token:string>", "Specify the bot token")
+  .action((options: { token: string }) => {
     console.clear();
-    BotCommand();
+    BotCommand(options.token);
   });
 
 program
