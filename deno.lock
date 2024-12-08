@@ -18,6 +18,7 @@
     "jsr:@std/fs@0.218.2": "0.218.2",
     "jsr:@std/fs@1.0.6": "1.0.6",
     "jsr:@std/path@0.218.2": "0.218.2",
+    "jsr:@std/path@1.0.6": "1.0.6",
     "jsr:@std/path@1.0.8": "1.0.8",
     "jsr:@std/path@^1.0.8": "1.0.8",
     "jsr:@std/path@~0.218.2": "0.218.2",
@@ -111,6 +112,9 @@
       "dependencies": [
         "jsr:@std/assert"
       ]
+    },
+    "@std/path@1.0.6": {
+      "integrity": "ab2c55f902b380cf28e0eec501b4906e4c1960d13f00e11cfbcd21de15f18fed"
     },
     "@std/path@1.0.8": {
       "integrity": "548fa456bb6a04d3c1a1e7477986b6cffbce95102d0bb447c67c4ee70e0364be"

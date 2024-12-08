@@ -6,6 +6,7 @@ import { PublishCommand } from "./commands/publish.ts";
 import { InstallCommand } from "./commands/install.ts";
 import { DeleteCommand } from "./commands/delete.ts";
 import deno_config from "./deno.json" with { type: "json" };
+
 const program = new Command();
 
 program
@@ -23,9 +24,10 @@ program
   .command("bot")
   .description("Create A New Blitz Bot")
   .option("-t, --token <token:string>", "Specify the bot token")
-  .action((options: { token?: string }) => {
+  .arguments("[path:string]")
+  .action((options: { token?: string }, path?: string) => {
     console.clear();
-    BotCommand(options.token);
+    BotCommand(options.token, path);
   });
 
 program
@@ -35,6 +37,7 @@ program
     console.clear();
     PluginCommand();
   });
+
 program
   .command("publish")
   .description("Publish A New Blitz Plugin")
