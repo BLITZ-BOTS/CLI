@@ -1,4 +1,4 @@
-# ![Blitz CLI Logo](./logo.png)
+# <img src="https://assets.blitz-bots.com/banner.svg" />
 
 ## **Blitz CLI**: Communicate Seamlessly with [Blitz](https://www.blitz-bots.com)
 
