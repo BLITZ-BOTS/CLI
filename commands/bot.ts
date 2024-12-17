@@ -1,5 +1,5 @@
 import { ensureDir } from "jsr:@std/fs@1.0.6";
-import { join, resolve, toFileUrl, fromFileUrl } from "jsr:@std/path@1.0.6";
+import { fromFileUrl, join, resolve, toFileUrl } from "jsr:@std/path@1.0.6";
 
 const RESET = "\x1b[0m";
 const BOLD = "\x1b[1m";
@@ -99,10 +99,12 @@ export async function BotCommand(token?: string, path?: string) {
 
     // Final instructions
     console.log(
-      `\n\n${BOLD}Bot Has Been Created!${RESET}\n\nEnter Token In:\n ${join(
-        targetPath,
-        ".env",
-      )}\n\nStart The Bot:\n deno task start\n\n`,
+      `\n\n${BOLD}Bot Has Been Created!${RESET}\n\nEnter Token In:\n ${
+        join(
+          targetPath,
+          ".env",
+        )
+      }\n\nStart The Bot:\n deno task start\n\n`,
     );
   } catch (error) {
     console.error(

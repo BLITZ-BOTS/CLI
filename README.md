@@ -35,6 +35,7 @@ These commands do not require an account:
 - **`install`**: Install plugins from the Blitz repository.
 - **`plugin`**: Generate the boilerplate for a new plugin.
 - **`bot`**: Generate the boilerplate for a new bot.
+- **`test`**: Test a plugin locally
 
 ---
 
@@ -85,6 +86,12 @@ To create a new bot scaffold:
 ```bash
 blitz bot
 ```
+
+### *Test a Plugin** (No Account Required)
+```bash
+blitz test <token>
+```
+
 
 ---
 

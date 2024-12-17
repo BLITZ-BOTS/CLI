@@ -5,6 +5,7 @@ import { PluginCommand } from "./commands/plugin.ts";
 import { PublishCommand } from "./commands/publish.ts";
 import { InstallCommand } from "./commands/install.ts";
 import { DeleteCommand } from "./commands/delete.ts";
+import { TestCommand } from "./commands/test.ts";
 import deno_config from "./deno.json" with { type: "json" };
 
 const program = new Command();
@@ -62,6 +63,15 @@ program
   .action((_options, plugin) => {
     console.clear();
     DeleteCommand(plugin);
+  });
+
+program
+  .command("test")
+  .description("Test Your Plugin With A Temp Client")
+  .arguments("<token:string>")
+  .action((_options, token) => {
+    console.clear();
+    TestCommand(token, Deno.cwd());
   });
 
 program.parse(Deno.args);
