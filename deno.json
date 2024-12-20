@@ -1,6 +1,6 @@
 {
   "name": "@blitz-bots/cli",
-  "version": "0.7.8",
+  "version": "1.0.0",
   "license": "MIT",
   "exports": "./main.ts",
   "imports": {
